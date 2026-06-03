@@ -149,8 +149,10 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
           const parsed = JSON.parse(saved) as ConnectionConfig;
           setConfig(parsed);
           configureApi(parsed.host, parsed.port, parsed.token);
-          wsService.configure(parsed.host, parsed.port, parsed.token);
-          wsService.connect();
+          if (parsed.host && parsed.port) {
+            wsService.configure(parsed.host, parsed.port, parsed.token);
+            wsService.connect();
+          }
         }
       } catch {
         // No saved config or invalid

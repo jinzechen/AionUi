@@ -85,6 +85,11 @@ export class WebSocketService {
     this.shouldReconnect = true;
     this.setState('connecting');
 
+    if (!this.host || !this.port) {
+      console.warn("[WS] host or port is empty, skipping connect");
+      return;
+    }
+
     const url = `ws://${this.host}:${this.port}`;
 
     try {
