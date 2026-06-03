@@ -19,7 +19,7 @@ function parseQrLoginUrl(data: string): { host: string; port: string; qrToken: s
     return {
       host: url.hostname,
       port: url.port || '25808',
-      qrToken,
+      qr_token: qrToken,
     };
   } catch {
     return null;
@@ -52,7 +52,7 @@ export default function ConnectScreen() {
     try {
       const { host, port, qrToken } = parsed;
       const response = await axios.post(`http://${host}:${port}/api/auth/qr-login`, {
-        qrToken,
+        qr_token: qrToken,
       });
       const jwt: string = response.data.token;
 
@@ -94,8 +94,35 @@ export default function ConnectScreen() {
     await connectWithUrl(result.data, () => (scannedRef.current = false));
   };
 
-  const handlePasteConnect = () => {
-    connectWithUrl(pasteUrl.trim(), () => {});
+  const handlePasteConnect = async () => {
+    const url = pasteUrl.trim();
+    if (!url) return;
+    let host = "127.0.0.1";
+    let port = "25808";
+    try {
+      const p = new URL(url.startsWith("http") ? url : "http://" + url);
+      host = p.hostname;
+      port = p.port || "25808";
+    } catch {
+      Alert.alert(t("common.error"), t("connect.invalidURL"), [{ text: t("common.ok") }]);
+      return;
+    }
+    setIsVerifying(true);
+    try {
+      await connect(host, port, "local-bypass-token");
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => { unsub(); reject(new Error("timeout")); }, 5000);
+        const unsub = wsService.onStateChange((state) => {
+          if (state === "connected") { clearTimeout(timeout); unsub(); resolve(); }
+          if (state === "auth_failed") { clearTimeout(timeout); unsub(); reject(new Error("auth_failed")); }
+        });
+      });
+      router.replace("/(tabs)/chat");
+    } catch {
+      Alert.alert(t("common.error"), t("connect.connectionFailed"), [{ text: t("common.ok") }]);
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   // Still loading permission status

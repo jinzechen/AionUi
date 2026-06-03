@@ -1,0 +1,15 @@
+packages:
+  - "packages/*"
+allowBuilds:
+  '@google/genai': set this to true or false
+  '@sentry/cli': set this to true or false
+  better-sqlite3: true
+  electron: set this to true or false
+  electron-winstaller: set this to true or false
+  esbuild: true
+  keytar: set this to true or false
+  node-pty: set this to true or false
+  protobufjs: set this to true or false
+  sharp: true
+  tree-sitter-bash: set this to true or false
+  unrs-resolver: set this to true or false
