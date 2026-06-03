@@ -55,3 +55,9 @@ jobs:
           name: aionui-android-apk
           path: mobile/android/app/build/outputs/apk/release/*.apk
           retention-days: 90
+
+      - name: Upload APK to Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: mobile/android/app/build/outputs/apk/release/*.apk
