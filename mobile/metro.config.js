@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const { getDefaultConfig } = require('expo/metro-config');
 
@@ -7,7 +8,9 @@ const workspaceRoot = path.resolve(projectRoot, '..');
 const config = getDefaultConfig(projectRoot);
 
 // Share pure functions from the main AionUi project
-config.watchFolders = [path.resolve(workspaceRoot, 'src/common')];
+const sharedDir = path.resolve(workspaceRoot, 'src/common');
+const watchFolders = fs.existsSync(sharedDir) ? [sharedDir] : [];
+config.watchFolders = watchFolders;
 
 // Resolve node_modules from mobile/ only
 config.resolver.nodeModulesPaths = [path.resolve(projectRoot, 'node_modules')];
